@@ -1,2 +1,5 @@
 .env
 node_modules/
+eslint.config.mjs
+.prettierignore
+mongo
