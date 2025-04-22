@@ -1,0 +1,304 @@
+openapi: 3.0.0
+info:
+  title: ToDo List API
+  version: 1.0.0
+  description: API para la gestión de tareas en una aplicación de To-Do List
+  contact:
+    name: Matias
+    email: jmatias.romero@gmail.com
+servers:
+  - url: 'http://localhost:3000'
+    description: Servidor de desarrollo
+
+paths:
+  # Tareas Endpoints
+  /tareas:
+    get:
+      summary: Obtiene todas las tareas (opcionalmente filtradas por estado y ordenadas por fecha límite)
+      tags:
+        - Tareas
+      parameters:
+        - in: query
+          name: estado
+          schema:
+            type: string
+          description: Filtrar por estado de tarea (por ejemplo: pendiente)
+        - in: query
+          name: ordenar
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Ordenar las tareas por fechaLimite (ascendente o descendente)
+      responses:
+        '200':
+          description: Lista de tareas obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tarea'
+        '204':
+          description: No se encontraron tareas
+        '500':
+          description: Error del servidor
+    post:
+      summary: Crea una nueva tarea
+      tags:
+        - Tareas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tarea'
+      responses:
+        '201':
+          description: Tarea creada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tarea'
+        '400':
+          description: Solicitud incorrecta
+        '500':
+          description: Error del servidor
+
+  /tareas/{id}:
+    put:
+      summary: Actualiza una tarea existente
+      tags:
+        - Tareas
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: El ID de la tarea a actualizar
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tarea'
+      responses:
+        '200':
+          description: Tarea actualizada correctamente
+        '404':
+          description: Tarea no encontrada
+        '500':
+          description: Error del servidor
+    delete:
+      summary: Elimina una tarea
+      tags:
+        - Tareas
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: El ID de la tarea a eliminar
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tarea eliminada correctamente
+        '404':
+          description: Tarea no encontrada
+        '500':
+          description: Error del servidor
+
+  # Sprint Endpoints
+  /sprints:
+    get:
+      summary: Obtiene todos los sprints
+      tags:
+        - Sprints
+      responses:
+        '200':
+          description: Lista de sprints obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sprint'
+        '500':
+          description: Error del servidor
+    post:
+      summary: Crea un nuevo sprint
+      tags:
+        - Sprints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sprint'
+      responses:
+        '201':
+          description: Sprint creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sprint'
+        '400':
+          description: Solicitud incorrecta
+        '500':
+          description: Error del servidor
+
+  /sprints/{id}:
+    get:
+      summary: Obtiene un sprint por ID
+      tags:
+        - Sprints
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: El ID del sprint a obtener
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sprint obtenido correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sprint'
+        '404':
+          description: Sprint no encontrado
+        '500':
+          description: Error del servidor
+    put:
+      summary: Actualiza un sprint existente
+      tags:
+        - Sprints
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: El ID del sprint a actualizar
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sprint'
+      responses:
+        '200':
+          description: Sprint actualizado correctamente
+        '404':
+          description: Sprint no encontrado
+        '500':
+          description: Error del servidor
+    delete:
+      summary: Elimina un sprint por ID
+      tags:
+        - Sprints
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: El ID del sprint a eliminar
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sprint eliminado correctamente
+        '404':
+          description: Sprint no encontrado
+        '500':
+          description: Error del servidor
+
+  # Backlog Endpoints
+  /backlog:
+    get:
+      summary: Obtiene el backlog de tareas
+      tags:
+        - Backlog
+      responses:
+        '200':
+          description: Backlog obtenido correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Backlog'
+        '500':
+          description: Error del servidor
+    post:
+      summary: Crea un nuevo backlog
+      tags:
+        - Backlog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Backlog'
+      responses:
+        '201':
+          description: Backlog creado correctamente
+        '400':
+          description: Solicitud incorrecta
+        '500':
+          description: Error del servidor
+
+components:
+  schemas:
+    Tarea:
+      type: object
+      properties:
+        _id:
+          type: string
+        nombre:
+          type: string
+        estado:
+          type: string
+        fechaLimite:
+          type: string
+          format: date
+        color:
+          type: string
+      required:
+        - nombre
+        - estado
+        - fechaLimite
+
+    Sprint:
+      type: object
+      properties:
+        _id:
+          type: string
+        fechaInicio:
+          type: string
+          format: date
+        fechaFin:
+          type: string
+          format: date
+        listaTareas:
+          type: array
+          items:
+            type: string
+        color:
+          type: string
+      required:
+        - fechaInicio
+        - fechaFin
+
+    Backlog:
+      type: object
+      properties:
+        _id:
+          type: string
+        nombre:
+          type: string
+        descripcion:
+          type: string
+      required:
+        - nombre
+        - descripcion
