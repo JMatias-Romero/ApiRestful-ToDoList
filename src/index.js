@@ -10,6 +10,9 @@ const rutasTareas = require('./routes/tarea.routes');
 const rutasSprints = require('./routes/sprint.routes');
 const rutasBacklogs = require('./routes/backlog.routes');
 
+const cors = require('cors');
+app.use(cors());
+
 //Middleware para parsear el body
 app.use(bodyParser.json());
 
