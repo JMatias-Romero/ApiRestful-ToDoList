@@ -1,15 +1,15 @@
-const Sprint = require('../models/sprint.model');
+const Sprint = require("../models/sprint.model");
 
 //trae todos los sprints
 const getSprints = async (req, res) => {
   try {
-    const sprints = await Sprint.find().populate('listaTareas');
+    const sprints = await Sprint.find().populate("listaTareas");
+    const sprintsConTareas = sprints.map((sprint) => ({
+      ...sprint.toObject(),
+      tareas: sprint.listaTareas || [],
+    }));
 
-    if (sprints.length === 0) {
-      return res.status(204).send();
-    }
-
-    res.json(sprints);
+    res.status(200).json(sprintsConTareas);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -23,9 +23,21 @@ const getSprintById = async (req, res) => {
 //crea un sprint
 const crearSprint = async (req, res) => {
   try {
-    const { fechaInicio, fechaFin, listaTareas = [], color } = req.body;
+    const {
+      nombreSprint,
+      fechaInicio,
+      fechaFin,
+      listaTareas = [],
+      color,
+    } = req.body;
 
-    const sprint = new Sprint({ fechaInicio, fechaFin, listaTareas, color });
+    const datos = { nombreSprint, fechaInicio, fechaFin, color };
+
+    //si lista tareas viene vacio, se elimina
+    if (Array.isArray(listaTareas) && listaTareas.length > 0) {
+      datos.listaTareas = listaTareas; // solo se agrega listaTareas si tiene datos
+    }
+    const sprint = new Sprint(datos);
     const nuevoSprint = await sprint.save();
     res.status(201).json(nuevoSprint);
   } catch (error) {
@@ -41,7 +53,30 @@ const agregaTareaAlSprint = async (req, res) => {
     sprint.listaTareas.push(tarea._id);
     await sprint.save();
 
-    res.status(200).json({ message: 'Tarea agregada correctamente al sprint' });
+    res.status(200).json({ message: "Tarea agregada correctamente al sprint" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Elimina tarea del sprint
+const eliminarTareaDelSprint = async (req, res) => {
+  try {
+    const { sprintId, tareaId } = req.params; // Obtenemos el ID del sprint y de la tarea a eliminar
+    const sprint = await Sprint.findById(sprintId); // Buscamos el sprint
+    if (!sprint) {
+      return res.status(404).json({ message: "Sprint no encontrado" });
+    }
+
+    // Filtramos la tarea de la lista de tareas del sprint
+    sprint.listaTareas = sprint.listaTareas.filter(
+      (tareaId) => tareaId.toString() !== tareaId
+    );
+
+    await sprint.save(); // Guardamos los cambios
+    res
+      .status(200)
+      .json({ message: "Tarea eliminada correctamente del sprint" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -52,6 +87,7 @@ const editarSprint = async (req, res) => {
   try {
     const sprint = await Sprint.findById(req.params.sprintId);
 
+    sprint.nombreSprint = req.body.nombreSprint || sprint.nombreSprint;
     sprint.fechaInicio = req.body.fechaInicio || sprint.fechaInicio;
     sprint.fechaFin = req.body.fechaFin || sprint.fechaFin;
     sprint.color = req.body.color || sprint.color;
@@ -72,7 +108,7 @@ const eliminarSprint = async (req, res) => {
   try {
     const sprint = res.sprint;
     await sprint.deleteOne();
-    res.status(200).json({ message: 'El Sprint se eliminó correctamente' });
+    res.status(200).json({ message: "El Sprint se eliminó correctamente" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -84,5 +120,6 @@ module.exports = {
   crearSprint,
   editarSprint,
   eliminarSprint,
-  agregaTareaAlSprint
+  agregaTareaAlSprint,
+  eliminarTareaDelSprint,
 };

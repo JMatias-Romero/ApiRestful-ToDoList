@@ -1,24 +1,28 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const sprintSchema = new mongoose.Schema({
+  nombreSprint: {
+    type: String,
+    required: true,
+  },
   fechaInicio: {
     type: String,
-    required: true
+    required: true,
   },
   fechaFin: {
     type: String,
-    required: true
+    required: true,
   },
   listaTareas: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tarea',
-      default: []
-    }
+      ref: "Tarea",
+      default: [],
+    },
   ],
   color: {
-    type: String
-  }
+    type: String,
+  },
 });
 
-module.exports = mongoose.model('Sprint', sprintSchema);
+module.exports = mongoose.model("Sprint", sprintSchema);
