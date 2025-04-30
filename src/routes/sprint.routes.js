@@ -77,7 +77,7 @@ router.put(
 
 //eliminar tarea del sprint
 router.delete(
-  "/sprints/:sprintId/tareas/:tareaId",
+  "/:sprintId/tareas/:tareaId",
   validarId("sprintId", "Sprint"),
   validarId("tareaId", "Tarea"),
   manejarErroresValidacion,

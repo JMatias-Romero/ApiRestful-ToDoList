@@ -31,7 +31,15 @@ const crearSprint = async (req, res) => {
       color,
     } = req.body;
 
-    const datos = { nombreSprint, fechaInicio, fechaFin, color };
+    const fechaInicioLocal = new Date(fechaInicio + "T00:00:00");
+    const fechaFinLocal = new Date(fechaFin + "T00:00:00");
+
+    const datos = {
+      nombreSprint,
+      fechaInicio: fechaInicioLocal,
+      fechaFin: fechaFinLocal,
+      color,
+    };
 
     //si lista tareas viene vacio, se elimina
     if (Array.isArray(listaTareas) && listaTareas.length > 0) {
@@ -70,7 +78,7 @@ const eliminarTareaDelSprint = async (req, res) => {
 
     // Filtramos la tarea de la lista de tareas del sprint
     sprint.listaTareas = sprint.listaTareas.filter(
-      (tareaId) => tareaId.toString() !== tareaId
+      (id) => id.toString() !== tareaId
     );
 
     await sprint.save(); // Guardamos los cambios
@@ -88,8 +96,13 @@ const editarSprint = async (req, res) => {
     const sprint = await Sprint.findById(req.params.sprintId);
 
     sprint.nombreSprint = req.body.nombreSprint || sprint.nombreSprint;
-    sprint.fechaInicio = req.body.fechaInicio || sprint.fechaInicio;
-    sprint.fechaFin = req.body.fechaFin || sprint.fechaFin;
+    sprint.fechaInicio = req.body.fechaInicio
+      ? new Date(req.body.fechaInicio + "T00:00:00")
+      : sprint.fechaInicio;
+    sprint.fechaFin = req.body.fechaFin
+      ? new Date(req.body.fechaFin + "T00:00:00")
+      : sprint.fechaFin;
+
     sprint.color = req.body.color || sprint.color;
 
     if (req.body.listaTareas) {
