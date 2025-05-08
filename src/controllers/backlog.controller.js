@@ -1,9 +1,9 @@
-const Backlog = require('../models/backlog.model');
+const Backlog = require("../models/backlog.model");
 
 //trae todos los backlogs, en este caso uno solo
 const getBacklogs = async (req, res) => {
   try {
-    const backlogs = await Backlog.find().populate('listaTareas');
+    const backlogs = await Backlog.find().populate("listaTareas");
 
     if (backlogs.length === 0) {
       return res.status(204).send();
@@ -13,6 +13,11 @@ const getBacklogs = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+//trae un backlog por id
+const getBacklogByID = async (req, res) => {
+  res.json(res.backlog);
 };
 
 //crea un backlog
@@ -36,7 +41,9 @@ const agregaTareaAlBacklog = async (req, res) => {
     backlog.listaTareas.push(tarea._id);
     await backlog.save();
 
-    res.status(200).json({ message: 'Tarea agregada correctamente al backlog' });
+    res
+      .status(200)
+      .json({ message: "Tarea agregada correctamente al backlog" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -44,6 +51,7 @@ const agregaTareaAlBacklog = async (req, res) => {
 
 module.exports = {
   getBacklogs,
+  getBacklogByID,
   crearBacklog,
-  agregaTareaAlBacklog
+  agregaTareaAlBacklog,
 };

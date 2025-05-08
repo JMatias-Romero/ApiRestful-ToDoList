@@ -5,9 +5,6 @@ const router = express.Router();
 const { validarId } = require("../middlewares/validarId");
 const manejarErroresValidacion = require("../middlewares/manejarErrores");
 const {
-  verificarTareaNoAsignadaASprint,
-} = require("../middlewares/tarea.validaciones");
-const {
   cargarDocumentoPorId,
 } = require("../middlewares/cargarDocumentoPorId ");
 const {
@@ -20,6 +17,7 @@ const {
 const Sprint = require("../models/sprint.model");
 const Tarea = require("../models/tarea.model");
 
+//controladores
 const {
   getSprints,
   getSprintById,
@@ -30,6 +28,7 @@ const {
   eliminarTareaDelSprint,
 } = require("../controllers/sprint.controller");
 
+//*** Rutas ***
 //get de todos los sprints
 router.get("/", getSprints);
 

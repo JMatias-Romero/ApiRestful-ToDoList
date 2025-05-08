@@ -1,4 +1,6 @@
-const Tarea = require('../models/tarea.model');
+const Tarea = require("../models/tarea.model");
+const Sprint = require("../models/sprint.model");
+const Backlog = require("../models/backlog.model");
 
 //trae todas las tareas
 const getTareas = async (req, res) => {
@@ -29,7 +31,13 @@ const getTareaByID = async (req, res) => {
 const crearTarea = async (req, res) => {
   try {
     const { titulo, descripcion, estado, fechaLimite, color } = req.body;
-    const tarea = new Tarea({ titulo, descripcion, estado, fechaLimite, color });
+    const tarea = new Tarea({
+      titulo,
+      descripcion,
+      estado,
+      fechaLimite,
+      color,
+    });
     const nuevaTarea = await tarea.save();
 
     res.status(201).json(nuevaTarea);
@@ -61,9 +69,43 @@ const eliminarTarea = async (req, res) => {
   const tarea = res.tarea;
   try {
     await tarea.deleteOne();
-    res.status(200).json({ message: `la tarea '${tarea.titulo}' se eliminó correctamente` });
+    res
+      .status(200)
+      .json({ message: `la tarea '${tarea.titulo}' se eliminó correctamente` });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+//obtiene tareas no asignadas a sprint ni a backlog para mostrarse disponibles de agregar a un backlog
+const obtenerTareasNoAsignadas = async (req, res) => {
+  try {
+    //trae todos los sprints y backlogs
+    const sprints = await Sprint.find({}, "listaTareas");
+    const backlogs = await Backlog.find({}, "listaTareas");
+
+    //extrae todos los id's de tareas asignadas
+    const tareasAsignadasASprints = sprints.flatMap((s) =>
+      s.listaTareas.map((id) => id.toString())
+    );
+    const tareasAsignadasABacklogs = backlogs.flatMap((s) =>
+      s.listaTareas.map((id) => id.toString())
+    );
+
+    const todasLasAsignadas = new Set([
+      ...tareasAsignadasASprints,
+      ...tareasAsignadasABacklogs,
+    ]);
+
+    //busca todas las tareas que no estan asignadas
+    const tareasNoAsignadas = await Tarea.find({
+      _id: { $nin: Array.from(todasLasAsignadas) },
+    });
+
+    res.json(tareasNoAsignadas);
+  } catch (error) {
+    console.log("Error al obtener tareas no asignadas", error);
+    res.status(500).json({ message: "error al obtener tareas no asignadas" });
   }
 };
 
@@ -72,5 +114,6 @@ module.exports = {
   getTareas,
   getTareaByID,
   editarTarea,
-  eliminarTarea
+  eliminarTarea,
+  obtenerTareasNoAsignadas,
 };
