@@ -32,6 +32,24 @@ const crearBacklog = async (req, res) => {
   }
 };
 
+//edita un backlog
+const editarBacklog = async (req, res) => {
+  try {
+    const backlog = await Backlog.findById(req.params.backlogId);
+
+    backlog.nombre = req.body.nombre || backlog.nombre;
+
+    if (req.body.listaTareas) {
+      backlog.listaTareas = req.body.listaTareas;
+    }
+
+    const updateBacklog = await backlog.save();
+    res.json(updateBacklog);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 //agrega tareas al backlog
 const agregaTareaAlBacklog = async (req, res) => {
   const backlog = res.backlog;
@@ -49,9 +67,22 @@ const agregaTareaAlBacklog = async (req, res) => {
   }
 };
 
+//elimina un backlog
+const eliminarBacklog = async (req, res) => {
+  try {
+    const backlog = res.backlog;
+    await backlog.deleteOne();
+    res.status(200).json({ message: "El backlog se eliminó correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getBacklogs,
   getBacklogByID,
   crearBacklog,
+  editarBacklog,
   agregaTareaAlBacklog,
+  eliminarBacklog,
 };

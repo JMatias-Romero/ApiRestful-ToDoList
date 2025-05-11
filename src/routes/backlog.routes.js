@@ -18,7 +18,9 @@ const {
   getBacklogs,
   getBacklogByID,
   crearBacklog,
+  editarBacklog,
   agregaTareaAlBacklog,
+  eliminarBacklog,
 } = require("../controllers/backlog.controller");
 
 //*** Rutas ***
@@ -30,12 +32,27 @@ router.get(
   "/:backlogId",
   validarId("backlogId", "Backlog"),
   manejarErroresValidacion,
-  cargarDocumentoPorId("backlogId", Backlog, "Backlog"),
+  cargarDocumentoPorId("backlogId", Backlog, "Backlog", {
+    populate: "listaTareas",
+  }),
   getBacklogByID
 );
 
 //crea backlog
 router.post("/", validarCamposBacklog, manejarErroresValidacion, crearBacklog);
+
+//editar backlog
+router.put(
+  "/:backlogId",
+  validarId("backlogId", "Backlog"),
+  manejarErroresValidacion,
+  validarCamposBacklog,
+  manejarErroresValidacion,
+  cargarDocumentoPorId("backlogId", Backlog, "Backlog", {
+    populate: "listaTareas",
+  }),
+  editarBacklog
+);
 
 //agrega tarea al backlog
 router.put(
@@ -48,6 +65,16 @@ router.put(
     populate: "listaTareas",
   }),
   agregaTareaAlBacklog
+);
+//eliminar backlog
+router.delete(
+  "/:backlogId",
+  validarId("backlogId", "Backlog"),
+  manejarErroresValidacion,
+  cargarDocumentoPorId("backlogId", Backlog, "Backlog", {
+    populate: "listaTareas",
+  }),
+  eliminarBacklog
 );
 
 module.exports = router;
